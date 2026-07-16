@@ -1,0 +1,2476 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VJU Tuyển Sinh 2026 – Trợ lý Thông minh</title>
+  <meta name="description"
+    content="Trợ lý tuyển sinh AI của Trường Đại học Việt Nhật (VJU) 2026 – hỗ trợ giải đáp thông tin tuyển sinh chính xác." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --red: #c0392b;
+      --red-light: #e74c3c;
+      --green: #1e824c;
+      --green-light: #2ecc71;
+      --accent: #1e824c;
+      --bg: #faf5e8;
+      --surface: #ffffff;
+      --surface2: #f6efe0;
+      --surface3: #e8dfc7;
+      --border: rgba(192, 57, 43, 0.08);
+      --text: #2c2519;
+      --muted: #6e6452;
+      --radius: 18px;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden
+    }
+
+    #app {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      height: 100vh
+    }
+
+    /* SIDEBAR */
+    #sidebar {
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 22px 18px;
+      gap: 20px;
+      overflow-y: auto
+    }
+
+    #sidebar::-webkit-scrollbar {
+      width: 3px
+    }
+
+    #sidebar::-webkit-scrollbar-thumb {
+      background: var(--surface3);
+      border-radius: 3px
+    }
+
+    .logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px
+    }
+
+    .logo-icon {
+      width: 240px;
+      height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+      border-radius: 50%;
+      background: var(--bg);
+    }
+
+    .logo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      mix-blend-mode: multiply;
+    }
+
+    .logo-text h1 {
+      font-size: 14.5px;
+      font-weight: 700;
+      line-height: 1.2;
+      text-align: center
+    }
+
+    .logo-text span {
+      font-size: 11px;
+      color: var(--muted);
+      display: block;
+      text-align: center
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid rgba(30, 130, 76, 0.08);
+      border-radius: 12px;
+      padding: 14px
+    }
+
+    .card label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      margin-bottom: 8px
+    }
+
+    .card input {
+      width: 100%;
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border .2s
+    }
+
+    .card input:focus {
+      border-color: var(--red)
+    }
+
+    .card input::placeholder {
+      color: #aaa
+    }
+
+    .key-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px
+    }
+
+    .key-save {
+      background: linear-gradient(135deg, #c0392b, #e74c3c);
+      border: none;
+      color: #fff;
+      border-radius: 7px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 600;
+      transition: opacity .2s
+    }
+
+    .key-save:hover {
+      opacity: .85
+    }
+
+    .key-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.5
+    }
+
+    .key-hint a {
+      color: var(--accent);
+      text-decoration: none
+    }
+
+    .key-hint a:hover {
+      text-decoration: underline
+    }
+
+    .key-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      margin-top: 8px
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .dot.ok {
+      background: #2ecc71;
+      box-shadow: 0 0 8px #2ecc71
+    }
+
+    .dot.bad {
+      background: #e74c3c;
+      box-shadow: 0 0 8px #e74c3c
+    }
+
+    .dot.idle {
+      background: #555
+    }
+
+    .q-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 10px
+    }
+
+    .qbtn {
+      display: block;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid rgba(30, 130, 76, 0.08);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+      margin-bottom: 7px;
+      transition: background .15s, border-color .15s, transform .15s;
+      line-height: 1.4
+    }
+
+    .qbtn:hover {
+      background: var(--surface2);
+      border-color: var(--red);
+      transform: translateX(3px)
+    }
+
+    .sfooter {
+      margin-top: auto;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+      border-top: 1px solid var(--border);
+      padding-top: 14px
+    }
+
+    /* CHAT */
+    #chat-area {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden
+    }
+
+    #chat-header {
+      background: var(--red);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+      padding: 15px 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      color: #fff;
+    }
+
+    .header-info h2 {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .header-info p {
+      font-size: 11.5px;
+      color: rgba(255, 255, 255, 0.85);
+      margin-top: 2px;
+    }
+
+    .hbtn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 6px 13px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit
+    }
+
+    .hbtn:hover {
+      background: var(--surface3);
+      color: var(--text);
+      border-color: var(--red)
+    }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      scroll-behavior: smooth
+    }
+
+    #messages::-webkit-scrollbar {
+      width: 4px
+    }
+
+    #messages::-webkit-scrollbar-thumb {
+      background: var(--surface3);
+      border-radius: 4px
+    }
+
+    #welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      text-align: center;
+      padding: 40px 30px;
+      gap: 14px
+    }
+
+    .w-icon {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      overflow: hidden;
+      animation: float 3s ease-in-out infinite;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      background: var(--bg);
+    }
+
+    .w-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: multiply;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-8px)
+      }
+    }
+
+    #welcome h2 {
+      font-size: 21px;
+      font-weight: 800
+    }
+
+    #welcome p {
+      font-size: 13.5px;
+      color: var(--muted);
+      max-width: 440px;
+      line-height: 1.7
+    }
+
+    .w-note {
+      background: rgba(243, 156, 18, .08);
+      border: 1px solid rgba(243, 156, 18, .3);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--accent);
+      max-width: 440px;
+      line-height: 1.6;
+      text-align: left
+    }
+
+    .msg {
+      display: flex;
+      gap: 11px;
+      max-width: 840px;
+      animation: fadeUp .28s ease both
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .msg.user {
+      flex-direction: row-reverse;
+      align-self: flex-end
+    }
+
+    .msg.bot {
+      align-self: flex-start
+    }
+
+    .av {
+      display: none !important;
+    }
+
+    .msg.user .av {
+      background: linear-gradient(135deg, #c0392b, #e74c3c)
+    }
+
+    .msg.bot .av {
+      background: var(--surface2);
+      border: 1px solid var(--border)
+    }
+
+    .bubble {
+      padding: 16px 22px;
+      border-radius: var(--radius);
+      font-size: 18px;
+      font-family: 'Times New Roman', Times, serif;
+      line-height: 1.78;
+      max-width: 780px
+    }
+
+    .msg.user .bubble {
+      background: linear-gradient(135deg, #c0392b, #e74c3c);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 20px rgba(192, 57, 43, .28)
+    }
+
+    .msg.bot .bubble {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      white-space: pre-wrap;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06)
+    }
+
+    .msg-time {
+      font-size: 10px;
+      color: var(--muted);
+      align-self: flex-end;
+      flex-shrink: 0;
+      padding-bottom: 3px
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 5px;
+      padding: 4px 0
+    }
+
+    .typing-dots span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      animation: blink 1.2s ease-in-out infinite
+    }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: .2s
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: .4s
+    }
+
+    @keyframes blink {
+
+      0%,
+      80%,
+      100% {
+        opacity: .3
+      }
+
+      40% {
+        opacity: 1
+      }
+    }
+
+    /* INPUT */
+    #input-area {
+      padding: 18px 26px;
+      background: var(--red);
+      border-top: 1px solid rgba(0, 0, 0, 0.12);
+      flex-shrink: 0
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end
+    }
+
+    #user-input {
+      flex: 1;
+      background: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 14px;
+      color: #1a1a1a;
+      font-size: 13.5px;
+      font-family: inherit;
+      padding: 13px 16px;
+      resize: none;
+      outline: none;
+      transition: border .2s, box-shadow .2s;
+      max-height: 140px;
+      min-height: 50px;
+      line-height: 1.6
+    }
+
+    #user-input:focus {
+      border-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25)
+    }
+
+    #user-input::placeholder {
+      color: #999
+    }
+
+    #send-btn {
+      width: 50px;
+      height: 50px;
+      background: #ffffff;
+      border: none;
+      border-radius: 13px;
+      color: var(--red);
+      font-size: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .14s, box-shadow .14s, opacity .14s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15)
+    }
+
+    #send-btn:hover:not(:disabled) {
+      background: #fbf7ee;
+      transform: scale(1.04)
+    }
+
+    #send-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed
+    }
+
+    /* TOAST */
+    #toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-size: 13px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .15);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s;
+      z-index: 999;
+      max-width: 300px
+    }
+
+    #toast.show {
+      transform: none;
+      opacity: 1
+    }
+
+    #toast.ok {
+      border-color: rgba(46, 204, 113, .5);
+      color: #2ecc71
+    }
+
+    #toast.err {
+      border-color: rgba(192, 57, 43, .5);
+      color: #e74c3c
+    }
+
+    @media(max-width:768px) {
+      #app {
+        grid-template-columns: 1fr
+      }
+
+      #sidebar {
+        display: none
+      }
+
+      #messages,
+      #input-area {
+        padding: 14px
+      }
+
+      #chat-header {
+        padding: 12px 14px
+      }
+
+      .auth-card {
+        width: 95% !important;
+        padding: 28px 20px !important
+      }
+
+      .admin-panel {
+        padding: 16px !important
+      }
+    }
+
+    /* ═══ AUTH MODAL ═══ */
+    #auth-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(6px);
+      overflow-y: auto;
+    }
+
+    #auth-screen.show {
+      display: flex;
+    }
+
+    #auth-screen::before,
+    #auth-screen::after {
+      display: none;
+    }
+
+    .auth-card {
+      position: relative;
+      z-index: 1;
+      width: 440px;
+      max-width: 95%;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px 36px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+      margin: 20px 0;
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .auth-logo img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: contain;
+    }
+
+    .auth-logo h2 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-top: 10px;
+      color: var(--red);
+    }
+
+    .auth-logo p {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--surface3);
+      margin-bottom: 24px;
+    }
+
+    .auth-tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--muted);
+      transition: all .25s;
+    }
+
+    .auth-tab.active {
+      background: var(--red);
+      color: #fff;
+      border-radius: 12px;
+    }
+
+    .auth-form {
+      display: none;
+    }
+
+    .auth-form.active {
+      display: block;
+    }
+
+    .auth-field {
+      margin-bottom: 14px;
+    }
+
+    .auth-field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: var(--text);
+    }
+
+    .auth-field input,
+    .auth-field select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-family: inherit;
+      background: var(--surface2);
+      transition: border-color .2s;
+      outline: none;
+    }
+
+    .auth-field input:focus,
+    .auth-field select:focus {
+      border-color: var(--red);
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--red), var(--red-light));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform .15s, box-shadow .15s;
+      margin-top: 6px;
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(192, 57, 43, .3);
+    }
+
+    .auth-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .auth-divider {
+      text-align: center;
+      margin: 18px 0;
+      font-size: 12px;
+      color: var(--muted);
+      position: relative;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 38%;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .auth-divider::before {
+      left: 0;
+    }
+
+    .auth-divider::after {
+      right: 0;
+    }
+
+    .admin-login-toggle {
+      display: block;
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      margin-top: 12px;
+      text-decoration: underline;
+    }
+
+    .admin-login-toggle:hover {
+      color: var(--red);
+    }
+
+    /* ═══ MODALS (OTP + Consent) ═══ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fdf9ee;
+      border-radius: 20px;
+      padding: 32px 30px;
+      width: 380px;
+      max-width: 92%;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      animation: modalIn .3s ease;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .modal-box h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .modal-box p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .otp-display {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: 8px;
+      color: var(--red);
+      margin: 16px 0;
+      font-family: 'Courier New', monospace;
+    }
+
+    .otp-input-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin: 16px 0;
+    }
+
+    .otp-input-row input {
+      width: 46px;
+      height: 52px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 700;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .otp-input-row input:focus {
+      border-color: var(--red);
+    }
+
+    .modal-btn {
+      padding: 10px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+      margin: 0 4px;
+    }
+
+    .modal-btn.primary {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .modal-btn.primary:hover {
+      background: var(--red-light);
+    }
+
+    .modal-btn.secondary {
+      background: var(--surface3);
+      color: var(--text);
+    }
+
+    /* ═══ ADMIN PANEL ═══ */
+    #admin-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      display: none;
+      background: var(--bg);
+      overflow-y: auto;
+    }
+
+    #admin-panel.show {
+      display: block;
+    }
+
+    .admin-header {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .admin-header h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--red);
+    }
+
+    .admin-header p {
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    .admin-body {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .admin-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-card .stat-num {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--red);
+    }
+
+    .stat-card .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .admin-search {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-family: inherit;
+      background: #fff;
+      margin-bottom: 20px;
+      outline: none;
+    }
+
+    .admin-search:focus {
+      border-color: var(--red);
+    }
+
+    .user-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .user-card {
+      background: #fdf9ee;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .user-card:hover {
+      border-color: var(--red);
+      box-shadow: 0 4px 16px rgba(192, 57, 43, .1);
+    }
+
+    .user-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .user-card-header h4 {
+      font-size: 14.5px;
+      font-weight: 700;
+    }
+
+    .user-card-header span {
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+
+    .user-card-details {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .user-card-details span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .user-detail-panel {
+      display: none;
+      background: #fdf9ee;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 16px;
+    }
+
+    .user-detail-panel.show {
+      display: block;
+    }
+
+    .user-detail-panel h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-log {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .chat-log-item {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+    }
+
+    .chat-log-item:last-child {
+      border: none;
+    }
+
+    .chat-log-item .chat-role {
+      font-weight: 700;
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    .chat-log-item .chat-role.user {
+      color: var(--red);
+    }
+
+    .chat-log-item .chat-role.bot {
+      color: var(--accent);
+    }
+
+    .chat-log-item .chat-text {
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .interests-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 12px 0;
+    }
+
+    .interests-tags span {
+      background: rgba(192, 57, 43, 0.08);
+      color: var(--red);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .logout-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #fff;
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+    }
+
+    .logout-btn:hover {
+      background: #fff;
+      color: var(--red);
+      border-color: #fff;
+    }
+
+    .admin-header .logout-btn {
+      background: #e8f4fd;
+      border: 1px solid #b3d7f2;
+      color: #1b4f72;
+    }
+
+    .admin-header .logout-btn:hover {
+      background: #d4e6f1;
+      color: #154360;
+      border-color: #a9cce3;
+    }
+
+    .header-auth-btns {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-auth-btns .auth-btn-header {
+      padding: 7px 18px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+      border: 1px solid #ffffff;
+      background: #ffffff;
+      color: var(--red);
+    }
+
+    .header-auth-btns .auth-btn-header:hover {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--red);
+      border-color: rgba(255, 255, 255, 0.9);
+    }
+
+    .quick-replies-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 12px 52px;
+      animation: fadeIn .3s ease;
+    }
+
+    .quick-reply-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--red);
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    }
+
+    .quick-reply-btn:hover {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(192, 57, 43, 0.15);
+    }
+
+    #header-logged-in {
+      display: none;
+      color: #fff;
+    }
+
+    #header-guest {
+      display: flex;
+    }
+
+    #user-greeting {
+      color: rgba(255, 255, 255, 0.95) !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══ AUTH SCREEN ═══ -->
+  <div id="auth-screen" onclick="if(event.target===this)closeAuthModal()">
+    <div class="auth-card">
+      <button onclick="closeAuthModal()"
+        style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;">&times;</button>
+      <div class="auth-logo">
+        <img src="https://upload.wikimedia.org/wikipedia/vi/thumb/a/a0/Logo_vju.svg/1280px-Logo_vju.svg.png"
+          alt="VJU Logo" />
+        <h2>VJU Tuyển Sinh 2026</h2>
+        <p>Trường Đại học Việt Nhật - Đại học Quốc gia Hà Nội</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login')">Đăng nhập</button>
+        <button class="auth-tab" onclick="switchAuthTab('register')">Đăng ký</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="login-form" class="auth-form active">
+        <div class="auth-field">
+          <label>📱 Số điện thoại</label>
+          <input type="tel" id="login-phone" placeholder="Nhập số điện thoại đã đăng ký (10 số)..." maxlength="10" />
+        </div>
+        <button class="auth-btn" onclick="loginSendOTP()">Gửi mã OTP</button>
+
+        <div class="auth-divider">hoặc</div>
+
+        <button class="admin-login-toggle" onclick="toggleAdminLogin()">🔐 Đăng nhập Admin</button>
+
+        <div id="admin-login-fields" style="display:none; margin-top:14px;">
+          <div class="auth-field">
+            <label>👤 Tài khoản Admin</label>
+            <input type="text" id="admin-user" placeholder="Tên đăng nhập..." />
+          </div>
+          <div class="auth-field">
+            <label>🔒 Mật khẩu</label>
+            <input type="password" id="admin-pass" placeholder="Nhập mật khẩu..." />
+          </div>
+          <button class="auth-btn" onclick="adminLogin()">Đăng nhập Admin</button>
+        </div>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="register-form" class="auth-form">
+        <div class="auth-field">
+          <label>📱 Số điện thoại</label>
+          <input type="tel" id="reg-phone" placeholder="Nhập số điện thoại (10 số)..." maxlength="10" />
+        </div>
+        <div class="auth-field">
+          <label>👤 Họ và tên</label>
+          <input type="text" id="reg-name" placeholder="Nhập họ và tên đầy đủ..." />
+        </div>
+        <div class="auth-field">
+          <label>📅 Ngày sinh</label>
+          <input type="date" id="reg-dob" />
+        </div>
+        <div class="auth-field">
+          <label>📚 Tổ hợp khối theo học</label>
+          <select id="reg-combo">
+            <option value="">-- Chọn tổ hợp --</option>
+            <option value="A00">A00 – Toán, Vật lí, Hóa học</option>
+            <option value="A01">A01 – Toán, Vật lí, Tiếng Anh</option>
+            <option value="A02">A02 – Toán, Vật lí, Sinh học</option>
+            <option value="B00">B00 – Toán, Hóa học, Sinh học</option>
+            <option value="C00">C00 – Ngữ văn, Lịch sử, Địa lí</option>
+            <option value="C01">C01 – Toán, Ngữ văn, Vật lí</option>
+            <option value="C02">C02 – Ngữ văn, Toán, Hóa học</option>
+            <option value="D01">D01 – Toán, Ngữ văn, Tiếng Anh</option>
+            <option value="D06">D06 – Toán, Ngữ văn, Tiếng Nhật</option>
+            <option value="D07">D07 – Toán, Hóa học, Tiếng Anh</option>
+            <option value="D08">D08 – Toán, Sinh học, Tiếng Anh</option>
+            <option value="D11">D11 – Ngữ văn, Vật lý, Tiếng Anh</option>
+            <option value="D14">D14 – Ngữ văn, Lịch sử, Tiếng Anh</option>
+            <option value="D15">D15 – Ngữ văn, Địa lí, Tiếng Anh</option>
+            <option value="D23">D23 – Toán, Hóa học, Tiếng Nhật</option>
+            <option value="D28">D28 – Toán, Vật lí, Tiếng Nhật</option>
+            <option value="X78">X78 – Ngữ văn, GDKT&PL, Tiếng Anh</option>
+            <option value="X98">X98 – Ngữ văn, GDKT&PL, Tiếng Nhật</option>
+          </select>
+        </div>
+        <div class="auth-field">
+          <label>🎓 Ngành quan tâm</label>
+          <select id="reg-major">
+            <option value="">-- Chọn ngành --</option>
+            <option value="VJU1">VJU1 – Nhật Bản học (BJS)</option>
+            <option value="VJU2">VJU2 – Khoa học và Kỹ thuật máy tính (BCSE)</option>
+            <option value="VJU3">VJU3 – Cơ điện tử thông minh (EMJM)</option>
+            <option value="VJU4">VJU4 – Công nghệ thực phẩm và Sức khỏe (EFTH)</option>
+            <option value="VJU5">VJU5 – Nông nghiệp thông minh (ESAS)</option>
+            <option value="VJU6">VJU6 – Kỹ thuật Xây dựng (ECE)</option>
+            <option value="VJU7">VJU7 – Đổi mới và Phát triển toàn cầu (BGDI)</option>
+            <option value="VJU8">VJU8 – Công nghệ Chip bán dẫn (ESCT)</option>
+            <option value="VJU9">VJU9 – Điều khiển thông minh (BICA)</option>
+          </select>
+        </div>
+        <button class="auth-btn" onclick="registerUser()">Đăng ký tài khoản</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONSENT MODAL ═══ -->
+  <div class="modal-overlay" id="consent-modal">
+    <div class="modal-box">
+      <h3>📋 Xác nhận sử dụng dữ liệu</h3>
+      <p style="text-align: justify; text-justify: inter-word;">Bằng việc đăng ký tài khoản, bạn đồng ý cho phép hệ
+        thống VJU Tuyển Sinh sử dụng thông tin cá nhân và dữ liệu chat của bạn <strong>(tên, số điện thoại, ngày sinh,
+          tổ hợp khối, ngành quan tâm)</strong> nhằm phục vụ tư vấn cho thí sinh:</p>
+      <div
+        style="text-align: left; display: inline-block; margin: 15px auto 5px auto; width: 100%; max-width: 290px; line-height: 1.8; font-size: 13px;">
+        <div>✦ Hỗ trợ tư vấn tuyển sinh phù hợp</div>
+        <div>✦ Liên hệ chăm sóc và giải đáp thắc mắc</div>
+        <div>✦ Cải thiện chất lượng dịch vụ tư vấn</div>
+      </div>
+      <div>
+        <button class="modal-btn primary" onclick="acceptConsent()">✓ Đồng ý</button>
+        <button class="modal-btn secondary" onclick="declineConsent()">Từ chối</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ OTP MODAL ═══ -->
+  <div class="modal-overlay" id="otp-modal">
+    <div class="modal-box" style="position:relative;">
+      <span id="otp-demo-hint"
+        style="position:absolute;top:8px;right:12px;font-size:10px;color:var(--muted);background:var(--surface3);padding:2px 8px;border-radius:6px;opacity:0.7;"
+        title="Mã OTP demo"></span>
+      <h3>🔐 Xác thực OTP</h3>
+      <p>Mã xác thực 6 chữ số đã được gửi đến số điện thoại của bạn.</p>
+      <div class="auth-field" style="margin-bottom:16px;margin-top:16px;">
+        <label>Nhập mã OTP</label>
+        <div class="otp-input-row">
+          <input type="tel" inputmode="numeric" pattern="[0-9]" maxlength="1" class="otp-char" />
+          <input type="tel" inputmode="numeric" pattern="[0-9]" maxlength="1" class="otp-char" />
+          <input type="tel" inputmode="numeric" pattern="[0-9]" maxlength="1" class="otp-char" />
+          <input type="tel" inputmode="numeric" pattern="[0-9]" maxlength="1" class="otp-char" />
+          <input type="tel" inputmode="numeric" pattern="[0-9]" maxlength="1" class="otp-char" />
+          <input type="tel" inputmode="numeric" pattern="[0-9]" maxlength="1" class="otp-char" />
+        </div>
+      </div>
+      <button class="modal-btn primary" onclick="verifyOTP()">Xác thực</button>
+      <button class="modal-btn secondary" onclick="cancelOTP()">Hủy</button>
+    </div>
+  </div>
+
+  <!-- ═══ API KEY GUIDE MODAL ═══ -->
+  <div class="modal-overlay" id="api-guide-modal" onclick="if(event.target===this)closeApiGuide()">
+    <div class="modal-box" style="max-width:500px; text-align:left;">
+      <h3 style="text-align:center; margin-bottom:16px;">🔑 Hướng dẫn lấy Google Gemini API Key</h3>
+      <div style="font-size:13.5px; line-height:1.6; color:var(--text);">
+        <p style="margin-bottom:10px;">Để sử dụng trợ lý tuyển sinh, bạn cần có một API Key từ Google (hoàn toàn miễn
+          phí). Vui lòng làm theo các bước sau:</p>
+        <ol style="margin-left:20px; margin-bottom:16px;">
+          <li style="margin-bottom:8px;">Truy cập trang web <strong><a href="https://aistudio.google.com/"
+                target="_blank" style="color:var(--red); text-decoration:underline;">Google AI Studio</a></strong>.</li>
+          <li style="margin-bottom:8px;">Đăng nhập bằng tài khoản Google (Gmail) của bạn.</li>
+          <li style="margin-bottom:8px;">Nhấn vào nút <strong>"Get API key"</strong> ở góc trên bên trái.</li>
+          <li style="margin-bottom:8px;">Nhấn <strong>"Create API key"</strong>, chọn dự án của bạn (hoặc tạo dự án mới)
+            rồi chọn <strong>"Create API key in new project"</strong>.</li>
+          <li style="margin-bottom:8px;">Sao chép (Copy) mã API Key vừa tạo (mã bắt đầu bằng <code>AIzaSy...</code>).
+          </li>
+          <li style="margin-bottom:8px;">Dán mã vào ô nhập API Key ở cột bên trái của ứng dụng này và nhấn <strong>"Lưu
+              Key"</strong>.</li>
+        </ol>
+        <p
+          style="font-size:12px; color:var(--muted); border-top:1px solid var(--border); padding-top:10px; text-align:center;">
+          ⚠️ Lưu ý: Tuyệt đối không chia sẻ API Key này cho người khác để tránh bị giới hạn hoặc vô hiệu hóa khóa.
+        </p>
+      </div>
+      <div style="text-align:center; margin-top:16px;">
+        <button class="modal-btn primary" onclick="closeApiGuide()">Đã hiểu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ADMIN PANEL ═══ -->
+  <div id="admin-panel">
+    <div class="admin-header">
+      <div>
+        <h2>🛡️ Quản trị VJU Tuyển Sinh</h2>
+        <p>Trường Đại học Việt Nhật - Đại học Quốc gia Hà Nội</p>
+      </div>
+      <button class="logout-btn" onclick="logout()">🚪 Đăng xuất</button>
+    </div>
+    <div class="admin-body">
+      <div class="admin-stats">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-total">0</div>
+          <div class="stat-label">Tổng thí sinh đăng ký</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-chatted">0</div>
+          <div class="stat-label">Đã tương tác chat</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="stat-today">0</div>
+          <div class="stat-label">Đăng ký hôm nay</div>
+        </div>
+      </div>
+      <input class="admin-search" id="admin-search" placeholder="🔍 Tìm thí sinh theo tên hoặc số điện thoại..."
+        oninput="filterUsers()" />
+      <div class="user-list" id="user-list"></div>
+      <div class="user-detail-panel" id="user-detail-panel"></div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN APP ═══ -->
+  <div id="app">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside id="sidebar">
+      <div class="logo-wrap">
+        <div class="logo-icon"><img
+            src="https://upload.wikimedia.org/wikipedia/vi/thumb/a/a0/Logo_vju.svg/1280px-Logo_vju.svg.png"
+            alt="VJU Logo" /></div>
+      </div>
+
+      <!-- API KEY SETTINGS -->
+      <div class="card">
+        <label>🔑 Google Gemini API Key</label>
+        <input type="password" id="api-key-input" placeholder="Nhập API Key để chat..." />
+        <div class="key-row" style="margin-top:8px;">
+          <button class="key-save" onclick="saveKey()">Lưu Key</button>
+        </div>
+        <div id="key-status" style="margin-top: 6px; font-size: 11px; color: var(--muted); font-weight: 600;"></div>
+        <div style="margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 8px;">
+          <a href="#" onclick="showApiKeyGuide(); return false;"
+            style="font-size:11.5px; color:var(--red); text-decoration:underline; font-weight:600; cursor:pointer;">❓
+            Hướng dẫn lấy API Key miễn phí</a>
+        </div>
+      </div>
+
+
+      <!-- QUICK QUESTIONS -->
+      <div>
+        <div class="q-title">Câu hỏi nhanh</div>
+        <button class="qbtn" onclick="quickAsk('Trường VJU có những ngành đào tạo nào trong năm 2026?')">🏫 Các ngành
+          đào tạo của VJU 2026</button>
+        <button class="qbtn" onclick="quickAsk('Học phí của VJU là bao nhiêu mỗi năm?')">💰 Học phí hằng năm bao
+          nhiêu?</button>
+        <button class="qbtn" onclick="quickAsk('Các phương thức tuyển sinh 2026 của VJU gồm những gì?')">📋 Phương thức
+          tuyển sinh 2026</button>
+        <button class="qbtn" onclick="quickAsk('Điều kiện ngoại ngữ đầu vào của VJU là gì?')">🌐 Điều kiện ngoại ngữ đầu
+          vào</button>
+        <button class="qbtn" onclick="quickAsk('Lịch phỏng vấn tuyển sinh VJU 2026 như thế nào?')">📅 Lịch phỏng vấn
+          2026</button>
+        <button class="qbtn" onclick="quickAsk('Điểm SAT tối thiểu để xét tuyển VJU là bao nhiêu?')">📝 Yêu cầu điểm SAT
+          tối thiểu</button>
+        <button class="qbtn" onclick="quickAsk('Chỉ tiêu tuyển sinh từng ngành của VJU năm 2026?')">📊 Chỉ tiêu tuyển
+          sinh từng ngành</button>
+      </div>
+
+      <div class="sfooter"
+        style="font-size: 10px; line-height: 1.5; color: var(--muted); border-top: 1px solid var(--border); padding-top: 10px; margin-top: auto;">
+        <strong style="font-size:11px;color:var(--text);display:block;margin-bottom:4px;">Trường Đại học Việt Nhật
+          (VJU)</strong>
+        📍 <strong>Cơ sở Mỹ Đình:</strong> Đường Lưu Hữu Phước, phường Từ Liêm, Hà Nội<br />
+        📍 <strong>Cơ sở Hòa Lạc:</strong> Khu QGHN04, Đô thị ĐHQGHN tại Hòa Lạc, Xã Hòa Lạc, Hà Nội<br />
+        📞 Hotline: (+84) 966 954 736<br />
+        ✉️ Email: admission@vju.ac.vn | info@vju.ac.vn<br />
+        🌐 Web: vju.ac.vn
+      </div>
+    </aside>
+
+    <!-- ═══ CHAT AREA ═══ -->
+    <main id="chat-area">
+      <header id="chat-header">
+        <div class="header-info" style="flex:1;">
+          <h2>VJU Tuyển Sinh 2026</h2>
+          <p>Trường Đại học Việt Nhật - Đại học Quốc gia Hà Nội</p>
+        </div>
+        <div id="header-guest" class="header-auth-btns">
+          <button class="auth-btn-header" onclick="openAuthModal('login')">Đăng nhập</button>
+          <button class="auth-btn-header primary" onclick="openAuthModal('register')">Đăng ký</button>
+        </div>
+        <div id="header-logged-in" style="display:none;align-items:center;gap:10px;">
+          <span id="user-greeting" style="font-size:12px;color:var(--muted);"></span>
+          <button class="logout-btn" onclick="logout()">🚪 Đăng xuất</button>
+        </div>
+      </header>
+
+      <div id="messages">
+        <div id="welcome">
+          <div class="w-icon"><img
+              src="https://upload.wikimedia.org/wikipedia/vi/thumb/a/a0/Logo_vju.svg/1280px-Logo_vju.svg.png"
+              alt="VJU Logo" /></div>
+          <h2>Xin chào! Tôi là Trợ lý Tuyển sinh VJU</h2>
+          <p>Tôi có thể giải đáp mọi thắc mắc về <strong style="color:var(--accent)">tuyển sinh đại học chính quy
+              2026</strong> của Trường Đại học Việt Nhật - Đại học Quốc gia Hà Nội – từ ngành học, học phí đến phương
+            thức và lịch phỏng vấn.</p>
+        </div>
+      </div>
+
+      <div id="input-area">
+        <div class="input-row">
+          <textarea id="user-input" rows="1"
+            placeholder="Nhập câu hỏi về tuyển sinh VJU... (Enter để gửi, Shift+Enter xuống dòng)"></textarea>
+          <button id="send-btn" onclick="sendMessage()" title="Gửi">➤</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════
+    // KNOWLEDGE BASE – Toàn bộ dữ liệu tuyển sinh VJU 2026
+    // ═══════════════════════════════════════════════════════
+    const KNOWLEDGE = `
+=== THÔNG TIN TUYỂN SINH ĐẠI HỌC CHÍNH QUY 2026 – TRƯỜNG ĐẠI HỌC VIỆT NHẬT (VJU) ===
+
+1. THÔNG TIN CHUNG
+- Tên trường: Trường Đại học Việt Nhật, Đại học Quốc gia Hà Nội (VJU - Vietnam Japan University)
+- Mã trường: VJU
+- Địa chỉ: 
+  + Cơ sở Mỹ Đình: Đường Lưu Hữu Phước, phường Từ Liêm, thành phố Hà Nội.
+  + Cơ sở Hòa Lạc: Khu QGHN04, Khu đô thị Đại học Quốc gia Hà Nội tại Hòa Lạc, Xã Hòa Lạc, Thành phố Hà Nội.
+- Email: admission@vju.ac.vn | info@vju.ac.vn
+- Hotline tuyển sinh: (+84) 966954736
+- Điện thoại: (+84) 2473066001 (nhánh 1)
+- Website: https://vju.ac.vn | Tuyển sinh: https://tuyensinh.vju.ac.vn
+
+2. CÁC NGÀNH ĐÀO TẠO VÀ CHỈ TIÊU 2026
+- VJU1: Nhật Bản học (BJS) – Mã ngành 7310613 – Chỉ tiêu: 120 sinh viên
+  Tổ hợp xét tuyển: C00, D01, D06, D11, D53, D14, D63, D15, D43, X78, X98
+- VJU2: Khoa học và Kỹ thuật máy tính (BCSE) – Mã ngành 7480101 – Chỉ tiêu: 150 sinh viên
+  Tổ hợp: A00, A01, D28, C01, C02, D01, D06, D07, D23
+- VJU3: Cơ điện tử thông minh và Sản xuất Nhật Bản (EMJM) – Mã ngành 7520114 – Chỉ tiêu: 55 sinh viên
+  Tổ hợp: A00, A01, D28, C01, C02, D01, D06, D07, D23
+- VJU4: Công nghệ thực phẩm và Sức khỏe (EFTH) – Mã ngành 7540101 – Chỉ tiêu: 55 sinh viên
+  Tổ hợp: A00, A01, D28, B00, C02, D01, D06, D07, D23, D08, D33
+- VJU5: Nông nghiệp thông minh và Bền vững (ESAS) – Mã ngành 7519002 – Chỉ tiêu: 20 sinh viên
+  Tổ hợp: A00, A01, D28, B00, C02, D01, D06, D07, D23, D08, D33, D10, D18
+- VJU6: Kỹ thuật Xây dựng (ECE) – Mã ngành 7580201 – Chỉ tiêu: 50 sinh viên
+  Tổ hợp: A00, A01, D28, C01, C02, D01, D06, D07, D23
+- VJU7: Đổi mới và Phát triển toàn cầu (BGDI) – Mã ngành 7310601 – Chỉ tiêu: 100 sinh viên
+  Tổ hợp: D01, D11, D12, D14, D15, X78 (phỏng vấn bằng tiếng Anh)
+- VJU8: Công nghệ kỹ thuật Chip bán dẫn (ESCT) – Mã ngành 7510301 – Chỉ tiêu: 100 sinh viên
+  Tổ hợp: A00, A01, D28, A02, C01, C02, D07, D23
+- VJU9: Điều khiển thông minh và Tự động hóa (BICA) – Mã ngành 7520216 – Chỉ tiêu: 100 sinh viên
+  Tổ hợp: A00, A01, D28, C01, C02, D01, D06, D07, D23
+
+3. HỌC PHÍ
+- Ngành Kỹ thuật Xây dựng (ECE): 35.000.000 VNĐ/năm
+- Tất cả các ngành còn lại: 58.000.000 VNĐ/năm
+- Cam kết KHÔNG tăng học phí trong suốt khóa học nếu sinh viên hoàn thành đúng tiến độ
+
+4. PHƯƠNG THỨC TUYỂN SINH 2026 (5 phương thức)
+- Phương thức 301: Xét tuyển thẳng, ưu tiên xét tuyển theo Bộ GD&ĐT và ĐHQGHN
+- Phương thức 100: Xét kết quả thi tốt nghiệp THPT năm 2026 (thang 30, có quy đổi chứng chỉ ngoại ngữ)
+- Phương thức 401: Xét kết quả thi Đánh giá năng lực (HSA) của ĐHQGHN (quy đổi sang thang 30)
+- Phương thức 415: Xét tuyển kết quả SAT – Mã đăng ký SAT: 7853. Điểm tối thiểu: 1100/1600
+- Phương thức 501: Xét tuyển phỏng vấn và đánh giá (thang điểm 100)
+  + Lệ phí phỏng vấn (501): 580.000 VNĐ/ngành/lần
+  + Lệ phí các phương thức khác: 30.000 VNĐ/ngành/lần
+  + Ngành EMJM KHÔNG xét tuyển phương thức phỏng vấn (501)
+  + Ngành BGDI phỏng vấn và viết luận hoàn toàn bằng tiếng Anh
+
+5. LỊCH PHỎNG VẤN (Phương thức 501)
+- Đợt 1: Hạn nộp hồ sơ 01/01 – 21/02/2026 → Phỏng vấn ngày 01/03/2026
+- Đợt 2: Hạn nộp hồ sơ 22/02 – 27/03/2026 → Phỏng vấn ngày 05/04/2026
+- Đợt 3: Hạn nộp hồ sơ 28/03 – 10/05/2026 (BJS đến 07/05) → Phỏng vấn ngày 17/05/2026
+- Đợt 4: Hạn nộp hồ sơ 11/05 – 09/06/2026 (BJS đến 06/06) → Phỏng vấn ngày 16/06/2026
+- Hạn hồ sơ xét tuyển thẳng: 13/06/2026
+- Hạn hồ sơ xét tuyển HSA: 14/07/2026
+
+6. ĐIỀU KIỆN NGOẠI NGỮ ĐẦU VÀO
+a) Các ngành chất lượng cao (BJS, BCSE, ESAS, EFTH, EMJM, ESCT, BICA) – đáp ứng 1 trong:
+   - Điểm TB môn ngoại ngữ 3 năm THPT ≥ 7.0 (tiếng Anh hoặc tiếng Nhật)
+   - IELTS ≥ 4.5 hoặc JLPT N3 trở lên
+   - Điểm thi tốt nghiệp THPT môn ngoại ngữ ≥ 5.0
+b) Ngành BGDI – đáp ứng 1 trong:
+   - Điểm TB tiếng Anh 3 năm THPT ≥ 7.5
+   - IELTS ≥ 4.5 hoặc chứng chỉ tương đương
+   - Điểm thi tốt nghiệp THPT môn tiếng Anh ≥ 6.5
+c) Ngành ECE: KHÔNG áp dụng điều kiện ngoại ngữ đầu vào
+
+7. BẢNG QUY ĐỔI CHỨNG CHỈ NGOẠI NGỮ SANG ĐIỂM 10
+- IELTS 5.5 / TOEFL iBT 72-78 / Vstep 6.0-6.5 → Điểm quy đổi: 8.0
+- IELTS 6.0 / TOEFL iBT 79-87 / Vstep 7.0 → Điểm quy đổi: 8.5
+- IELTS 6.5 / TOEFL iBT 88-95 / Vstep 7.5-8.0 / JLPT N3 → Điểm quy đổi: 9.0
+- IELTS 7.0 / TOEFL iBT 96-101 / Vstep 8.5 / JLPT N2 → Điểm quy đổi: 9.5
+- IELTS 7.5-9.0 / TOEFL iBT 102-120 / Vstep 9.0-10 / JLPT N1 → Điểm quy đổi: 10.0
+Lưu ý: Chứng chỉ có hiệu lực trong 2 năm tính đến thời điểm xét tuyển. Không nhận chứng chỉ thi online.
+
+8. MÃ TỔ HỢP MÔN THI
+- A00: Toán, Vật lí, Hóa học
+- A01: Toán, Vật lí, Tiếng Anh
+- A02: Toán, Vật lí, Sinh học
+- B00: Toán, Hóa học, Sinh học
+- C00: Ngữ văn, Lịch sử, Địa lí
+- C01: Toán, Ngữ văn, Vật lí
+- C02: Ngữ văn, Toán, Hóa học
+- D01: Toán, Ngữ văn, Tiếng Anh
+- D06: Toán, Ngữ văn, Tiếng Nhật
+- D07: Toán, Hóa học, Tiếng Anh
+- D08: Toán, Sinh học, Tiếng Anh
+- D11: Ngữ văn, Vật lý, Tiếng Anh
+- D14: Ngữ văn, Lịch sử, Tiếng Anh
+- D15: Ngữ văn, Địa lí, Tiếng Anh
+- D23: Toán, Hóa học, Tiếng Nhật
+- D28: Toán, Vật lí, Tiếng Nhật
+- X78: Ngữ văn, Giáo dục KT&PL, Tiếng Anh
+- X98: Ngữ văn, Giáo dục KT&PL, Tiếng Nhật
+`;
+
+    // ═══════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════
+    let isLoading = false;
+    let chatHistory = [];
+    let currentUser = null;
+    let currentOTP = '';
+    let otpPurpose = '';
+    let pendingRegData = null;
+
+    function getKey() { return localStorage.getItem('vju_gemini_key') || ''; }
+    function saveKey() {
+      const input = document.getElementById('api-key-input');
+      const key = input.value.trim();
+      if (!key) {
+        localStorage.removeItem('vju_gemini_key');
+        setKeyStatus(false, 'Chưa nhập API Key.');
+        showToast('Đã xóa API Key.', 'ok');
+        return;
+      }
+      localStorage.setItem('vju_gemini_key', key);
+      setKeyStatus(true, 'Đã lưu API Key.');
+      showToast('Đã lưu API Key.', 'ok');
+    }
+    function setKeyStatus(valid, text) {
+      const el = document.getElementById('key-status');
+      if (!el) return;
+      if (valid) {
+        el.textContent = text || '🔑 API Key hợp lệ';
+        el.style.color = '#27ae60';
+      } else {
+        el.textContent = text || '⚠️ Chưa cấu hình API Key';
+        el.style.color = '#e74c3c';
+      }
+    }
+    function showApiKeyGuide() {
+      document.getElementById('api-guide-modal').classList.add('show');
+    }
+    function closeApiGuide() {
+      document.getElementById('api-guide-modal').classList.remove('show');
+    }
+
+    // ═══════════════════════════════════════════════
+    // USER DATA STORAGE
+    // ═══════════════════════════════════════════════
+    function getUsers() { return JSON.parse(localStorage.getItem('vju_users') || '[]'); }
+    function saveUsers(u) { localStorage.setItem('vju_users', JSON.stringify(u)); }
+    function findUser(p) { return getUsers().find(u => u.phone === p); }
+    function getUserChats(p) { return JSON.parse(localStorage.getItem('vju_chats_' + p) || '[]'); }
+    function saveUserChat(p, role, text) {
+      const c = getUserChats(p);
+      c.push({ role, text, time: new Date().toISOString() });
+      localStorage.setItem('vju_chats_' + p, JSON.stringify(c));
+    }
+
+    // ═══════════════════════════════════════════════
+    // AUTH UI
+    // ═══════════════════════════════════════════════
+    function switchAuthTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+      if (tab === 'login') {
+        document.querySelectorAll('.auth-tab')[0].classList.add('active');
+        document.getElementById('login-form').classList.add('active');
+      } else {
+        document.querySelectorAll('.auth-tab')[1].classList.add('active');
+        document.getElementById('register-form').classList.add('active');
+      }
+    }
+    function toggleAdminLogin() {
+      const f = document.getElementById('admin-login-fields');
+      f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // ═══════════════════════════════════════════════
+    // INPUT VALIDATION (real-time)
+    // ═══════════════════════════════════════════════
+    (function setupInputValidation() {
+      // Phone fields: only allow digits
+      ['login-phone', 'reg-phone'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', function () {
+          const cleaned = this.value.replace(/[^0-9]/g, '');
+          if (cleaned !== this.value) {
+            this.value = cleaned;
+            showToast('Số điện thoại chỉ được nhập số (0-9).', 'err');
+          }
+        });
+      });
+      // Name field: only allow letters, Vietnamese chars, spaces
+      const nameEl = document.getElementById('reg-name');
+      if (nameEl) {
+        nameEl.addEventListener('input', function () {
+          const cleaned = this.value.replace(/[0-9]/g, '');
+          if (cleaned !== this.value) {
+            this.value = cleaned;
+            showToast('Họ và tên không được chứa chữ số.', 'err');
+          }
+        });
+      }
+    })();
+
+    // ═══════════════════════════════════════════════
+    // REGISTER
+    // ═══════════════════════════════════════════════
+    function registerUser() {
+      const phone = document.getElementById('reg-phone').value.trim();
+      const name = document.getElementById('reg-name').value.trim();
+      const dob = document.getElementById('reg-dob').value;
+      const combo = document.getElementById('reg-combo').value;
+      const major = document.getElementById('reg-major').value;
+      if (!phone || !name || !dob || !combo) {
+        showToast('Vui lòng điền đầy đủ thông tin bắt buộc.', 'err'); return;
+      }
+      if (!/^[0-9]{10}$/.test(phone)) {
+        showToast('Số điện thoại phải gồm đúng 10 chữ số.', 'err'); return;
+      }
+      if (findUser(phone)) {
+        showToast('So dien thoai da dang ky. Vui long dang nhap.', 'err'); return;
+      }
+      pendingRegData = { phone, name, dob, combo, major, registeredAt: new Date().toISOString() };
+      document.getElementById('consent-modal').classList.add('show');
+    }
+    function acceptConsent() {
+      document.getElementById('consent-modal').classList.remove('show');
+      if (!pendingRegData) return;
+      otpPurpose = 'register';
+      currentOTP = generateOTP();
+      document.getElementById('otp-demo-hint').textContent = 'Demo: ' + currentOTP;
+      clearOTPInputs();
+      document.getElementById('otp-modal').classList.add('show');
+      setTimeout(() => document.querySelector('.otp-char')?.focus(), 300);
+    }
+    function declineConsent() {
+      document.getElementById('consent-modal').classList.remove('show');
+      pendingRegData = null;
+      showToast('Ban can dong y de dang ky tai khoan.', 'err');
+    }
+
+    // ═══════════════════════════════════════════════
+    // LOGIN
+    // ═══════════════════════════════════════════════
+    function loginSendOTP() {
+      const phone = document.getElementById('login-phone').value.trim();
+      if (!phone) { showToast('Vui lòng nhập số điện thoại.', 'err'); return; }
+      if (!/^[0-9]{10}$/.test(phone)) {
+        showToast('Số điện thoại phải gồm đúng 10 chữ số.', 'err'); return;
+      }
+      const user = findUser(phone);
+      if (!user) { showToast('Số điện thoại chưa đăng ký. Vui lòng tạo tài khoản mới.', 'err'); return; }
+      otpPurpose = 'login';
+      pendingRegData = user;
+      currentOTP = generateOTP();
+      document.getElementById('otp-demo-hint').textContent = 'Demo: ' + currentOTP;
+      clearOTPInputs();
+      document.getElementById('otp-modal').classList.add('show');
+      setTimeout(() => document.querySelector('.otp-char')?.focus(), 300);
+    }
+    function adminLogin() {
+      const u = document.getElementById('admin-user').value.trim();
+      const p = document.getElementById('admin-pass').value;
+      if (u === 'adminvju' && p === 'adminvju2026') {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('admin-panel').classList.add('show');
+        loadAdminPanel();
+        showToast('Dang nhap Admin thanh cong!', 'ok');
+      } else {
+        showToast('Tai khoan hoac mat khau khong dung.', 'err');
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    // OTP
+    // ═══════════════════════════════════════════════
+    function generateOTP() { return Math.floor(100000 + Math.random() * 900000).toString(); }
+    function clearOTPInputs() { document.querySelectorAll('.otp-char').forEach(i => { i.value = ''; }); }
+    function getEnteredOTP() { return Array.from(document.querySelectorAll('.otp-char')).map(i => i.value).join(''); }
+
+    // Setup OTP input auto-advance
+    (function setupOTPInputs() {
+      document.querySelectorAll('.otp-char').forEach((input, idx, inputs) => {
+        // Only allow digits, auto-advance on input
+        input.addEventListener('input', function (e) {
+          // Keep only last digit
+          this.value = this.value.replace(/[^0-9]/g, '').slice(-1);
+          // Auto-advance to next field
+          if (this.value.length === 1 && idx < inputs.length - 1) {
+            inputs[idx + 1].focus();
+          }
+          // Auto-verify when all 6 filled
+          if (getEnteredOTP().length === 6) {
+            setTimeout(function () { verifyOTP(); }, 200);
+          }
+        });
+        // Handle backspace to go back
+        input.addEventListener('keydown', function (e) {
+          if (e.key === 'Backspace' && this.value === '' && idx > 0) {
+            inputs[idx - 1].focus();
+            inputs[idx - 1].value = '';
+          }
+        });
+        // Handle paste of full OTP
+        input.addEventListener('paste', function (e) {
+          e.preventDefault();
+          const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+          if (paste.length >= 6) {
+            for (let i = 0; i < 6; i++) {
+              inputs[i].value = paste[i] || '';
+            }
+            inputs[5].focus();
+            setTimeout(function () { verifyOTP(); }, 200);
+          }
+        });
+      });
+    })();
+
+    function verifyOTP() {
+      const entered = getEnteredOTP();
+      if (entered.length < 6) { showToast('Vui long nhap du 6 chu so.', 'err'); return; }
+      if (entered !== currentOTP) {
+        showToast('Ma OTP khong dung. Vui long thu lai.', 'err');
+        clearOTPInputs();
+        document.querySelector('.otp-char')?.focus();
+        return;
+      }
+      document.getElementById('otp-modal').classList.remove('show');
+      if (otpPurpose === 'register') {
+        const users = getUsers();
+        users.push(pendingRegData);
+        saveUsers(users);
+        showToast('Dang ky thanh cong! Dang dang nhap...', 'ok');
+        currentUser = pendingRegData;
+        sessionStorage.setItem('vju_session', JSON.stringify(currentUser));
+        pendingRegData = null;
+        enterChat();
+      } else if (otpPurpose === 'login') {
+        currentUser = pendingRegData;
+        sessionStorage.setItem('vju_session', JSON.stringify(currentUser));
+        pendingRegData = null;
+        showToast('Dang nhap thanh cong!', 'ok');
+        enterChat();
+      }
+    }
+    function cancelOTP() {
+      document.getElementById('otp-modal').classList.remove('show');
+      currentOTP = '';
+      clearOTPInputs();
+    }
+
+    // ═══════════════════════════════════════════════
+    // AUTH MODAL OPEN/CLOSE
+    // ═══════════════════════════════════════════════
+    function openAuthModal(tab) {
+      switchAuthTab(tab || 'login');
+      document.getElementById('auth-screen').classList.add('show');
+    }
+    function closeAuthModal() {
+      document.getElementById('auth-screen').classList.remove('show');
+    }
+
+    // ═══════════════════════════════════════════════
+    // ENTER CHAT / LOGOUT
+    // ═══════════════════════════════════════════════
+    function updateHeaderState() {
+      if (currentUser) {
+        document.getElementById('header-guest').style.display = 'none';
+        document.getElementById('header-logged-in').style.display = 'flex';
+        document.getElementById('user-greeting').textContent = '\uD83D\uDC64 ' + (currentUser.name || 'Thi sinh');
+      } else {
+        document.getElementById('header-guest').style.display = 'flex';
+        document.getElementById('header-logged-in').style.display = 'none';
+        document.getElementById('user-greeting').textContent = '';
+      }
+    }
+    function enterChat() {
+      closeAuthModal();
+      updateHeaderState();
+      const prevChats = getUserChats(currentUser.phone);
+      if (prevChats.length > 0) {
+        chatHistory = [];
+        prevChats.forEach(c => {
+          if (c.role === 'user') chatHistory.push({ role: 'user', parts: [{ text: c.text }] });
+          else chatHistory.push({ role: 'model', parts: [{ text: c.text }] });
+        });
+      }
+      textarea.focus();
+    }
+    function logout() {
+      currentUser = null;
+      chatHistory = [];
+      sessionStorage.removeItem('vju_session');
+      document.getElementById('admin-panel').classList.remove('show');
+      updateHeaderState();
+      document.getElementById('login-phone').value = '';
+      document.getElementById('admin-user').value = '';
+      document.getElementById('admin-pass').value = '';
+      document.getElementById('admin-login-fields').style.display = 'none';
+      showToast('Da dang xuat.', 'ok');
+    }
+
+    // ═══════════════════════════════════════════════
+    // ADMIN PANEL
+    // ═══════════════════════════════════════════════
+    function loadAdminPanel() {
+      const users = getUsers();
+      const today = new Date().toISOString().split('T')[0];
+      const todayUsers = users.filter(u => u.registeredAt && u.registeredAt.startsWith(today));
+      const chattedUsers = users.filter(u => getUserChats(u.phone).length > 0);
+      document.getElementById('stat-total').textContent = users.length;
+      document.getElementById('stat-chatted').textContent = chattedUsers.length;
+      document.getElementById('stat-today').textContent = todayUsers.length;
+      renderUserList(users);
+    }
+    function renderUserList(users) {
+      const list = document.getElementById('user-list');
+      if (users.length === 0) {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);">Chua co thi sinh nao dang ky.</div>';
+        return;
+      }
+      list.innerHTML = users.map(u => {
+        const cnt = getUserChats(u.phone).length;
+        const d = u.registeredAt ? new Date(u.registeredAt).toLocaleDateString('vi-VN') : 'N/A';
+        return `<div class="user-card" onclick="showUserDetail('${u.phone}')">
+          <div class="user-card-header"><h4>${esc(u.name)}</h4><span>Dang ky: ${d}</span></div>
+          <div class="user-card-details">
+            <span>\uD83D\uDCF1 ${u.phone}</span>
+            <span>\uD83D\uDCC5 ${u.dob || 'N/A'}</span>
+            <span>\uD83D\uDCDA ${u.combo || 'N/A'}</span>
+            <span>\uD83C\uDF93 ${u.major || 'N/A'}</span>
+            <span>\uD83D\uDCAC ${cnt} tin nhan</span>
+          </div></div>`;
+      }).join('');
+    }
+    function filterUsers() {
+      const q = document.getElementById('admin-search').value.toLowerCase().trim();
+      const filtered = getUsers().filter(u => u.name.toLowerCase().includes(q) || u.phone.includes(q));
+      renderUserList(filtered);
+      document.getElementById('user-detail-panel').classList.remove('show');
+    }
+    function showUserDetail(phone) {
+      const user = findUser(phone);
+      if (!user) return;
+      const chats = getUserChats(phone);
+      const panel = document.getElementById('user-detail-panel');
+      const interests = analyzeInterests(chats);
+      let chatHTML = '';
+      if (chats.length === 0) {
+        chatHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Chưa có lịch sử chat.</div>';
+      } else {
+        chatHTML = chats.map(c => {
+          const t = new Date(c.time).toLocaleString('vi-VN');
+          const rl = c.role === 'user' ? '👤 Thí sinh' : '🎓 Bot';
+          return `<div class="chat-log-item"><div class="chat-role ${c.role}">${rl} · ${t}</div><div class="chat-text">${esc(c.text)}</div></div>`;
+        }).join('');
+      }
+      panel.innerHTML = `
+        <h3 style="border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
+          <span>📝 Thông tin thí sinh: ${esc(user.name)}</span>
+          <button class="logout-btn" onclick="document.getElementById('user-detail-panel').classList.remove('show')" style="padding:5px 12px; font-size:11.5px; border-radius:6px; background:rgba(0,0,0,0.05); color:var(--text); border:none;">✕ Đóng</button>
+        </h3>
+        
+        <div style="background:rgba(0,0,0,0.02); padding:16px; border-radius:12px; border:1px solid var(--border); margin-bottom:18px;">
+          <p style="font-size:13.5px; font-weight:600; margin-bottom:12px; color:var(--text);">📋 Thông tin thí sinh:</p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:12px;">
+            <div>
+              <label style="font-size:11px; color:var(--muted); display:block; margin-bottom:4px; font-weight:600;">Họ và tên</label>
+              <div style="padding:8px 10px; border-radius:8px; border:1.5px solid var(--border); font-size:13px; background:#f0ede5; color:var(--text);">${esc(user.name)}</div>
+            </div>
+            <div>
+              <label style="font-size:11px; color:var(--muted); display:block; margin-bottom:4px; font-weight:600;">Số điện thoại</label>
+              <div style="padding:8px 10px; border-radius:8px; border:1.5px solid var(--border); font-size:13px; background:#f0ede5; color:var(--text);">${user.phone}</div>
+            </div>
+            <div>
+              <label style="font-size:11px; color:var(--muted); display:block; margin-bottom:4px; font-weight:600;">Ngày sinh</label>
+              <div style="padding:8px 10px; border-radius:8px; border:1.5px solid var(--border); font-size:13px; background:#f0ede5; color:var(--text);">${user.dob ? new Date(user.dob).toLocaleDateString('vi-VN') : 'N/A'}</div>
+            </div>
+            <div>
+              <label style="font-size:11px; color:var(--muted); display:block; margin-bottom:4px; font-weight:600;">Tổ hợp môn</label>
+              <div style="padding:8px 10px; border-radius:8px; border:1.5px solid var(--border); font-size:13px; background:#f0ede5; color:var(--text);">${user.combo || 'N/A'}</div>
+            </div>
+            <div style="grid-column: span 2;">
+              <label style="font-size:11px; color:var(--muted); display:block; margin-bottom:4px; font-weight:600;">Ngành quan tâm</label>
+              <div style="padding:8px 10px; border-radius:8px; border:1.5px solid var(--border); font-size:13px; background:#f0ede5; color:var(--text);">${user.major || 'N/A'}</div>
+            </div>
+          </div>
+          <div style="margin-top:14px; padding-top:10px; border-top:1px dashed var(--border);">
+            <span style="font-size:11.5px; color:var(--muted);">Đăng ký lúc: ${user.registeredAt ? new Date(user.registeredAt).toLocaleString('vi-VN') : 'N/A'}</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <p style="font-size:13.5px; font-weight:600; margin-bottom:8px; color:var(--text);">📝 Ghi chú về thí sinh (Admin Notes):</p>
+          <textarea id="admin-user-notes-${user.phone}" style="width:100%; min-height:80px; padding:10px; font-family:inherit; font-size:13px; border:1.5px solid var(--border); border-radius:10px; outline:none; resize:vertical; background:#ffffff; box-sizing:border-box;" placeholder="Nhập ghi chú liên hệ tư vấn, nguyện vọng học tập...">${esc(user.notes || '')}</textarea>
+          <div style="margin-top:8px; text-align:right;">
+            <button class="key-save" onclick="saveUserNote('${user.phone}')" style="padding:6px 14px; font-size:12px;">💾 Lưu ghi chú</button>
+          </div>
+        </div>
+
+        ${interests.length > 0 ? `
+        <div style="margin-bottom:18px;">
+          <p style="font-size:13.5px; font-weight:600; margin-bottom:6px; color:var(--text);">🔍 Chủ đề quan tâm nhiều nhất:</p>
+          <div class="interests-tags">${interests.map(t => '<span>' + t + '</span>').join('')}</div>
+        </div>` : ''}
+
+        <details open style="border:1px solid var(--border); border-radius:12px; background:#ffffff; padding:12px; margin-bottom:16px;">
+          <summary style="font-size:13.5px; font-weight:600; cursor:pointer; outline:none; user-select:none; color:var(--text);">💬 Toàn bộ cuộc hội thoại (${chats.length} tin nhắn) - Nhấn để thu gọn/mở rộng</summary>
+          <div class="chat-log" style="margin-top:10px; max-height:350px; overflow-y:auto;">${chatHTML}</div>
+        </details>
+
+        <div style="display:flex; gap:10px; margin-top:20px;">
+          <a href="tel:${user.phone}" class="modal-btn primary" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center; flex:1; padding:10px 0; border-radius:10px; font-size:13px;">📞 Gọi tư vấn ngay</a>
+          <button class="modal-btn secondary" onclick="deleteCandidate('${user.phone}')" style="flex:1; padding:10px 0; border-radius:10px; font-size:13px; background:#e74c3c; color:#fff; border:none; cursor:pointer; font-weight:600;">🗑️ Xóa thí sinh</button>
+          <button class="modal-btn secondary" onclick="document.getElementById('user-detail-panel').classList.remove('show')" style="flex:1; padding:10px 0; border-radius:10px; font-size:13px; background:var(--surface3); border:none; cursor:pointer;">▲ Đóng chi tiết</button>
+        </div>`;
+
+      panel.classList.add('show');
+      panel.scrollIntoView({ behavior: 'smooth' });
+    }
+
+
+
+    function deleteCandidate(phone) {
+      const user = findUser(phone);
+      if (!user) { showToast('Không tìm thấy thí sinh.', 'err'); return; }
+      const confirmed = confirm('⚠️ Bạn có chắc chắn muốn xóa thí sinh "' + user.name + '" (SĐT: ' + user.phone + ')?\n\nThao tác này sẽ xóa toàn bộ thông tin và lịch sử chat của thí sinh và KHÔNG THỂ hoàn tác!');
+      if (!confirmed) return;
+      // Remove user from users list
+      const users = getUsers().filter(u => u.phone !== phone);
+      saveUsers(users);
+      // Remove user chat history
+      localStorage.removeItem('vju_chats_' + phone);
+      // Hide detail panel and reload admin
+      document.getElementById('user-detail-panel').classList.remove('show');
+      loadAdminPanel();
+      showToast('Đã xóa thí sinh "' + user.name + '" thành công!', 'ok');
+    }
+
+
+    function saveUserNote(phone) {
+      const notes = document.getElementById(`admin-user-notes-${phone}`).value.trim();
+      const users = getUsers();
+      const uIndex = users.findIndex(u => u.phone === phone);
+      if (uIndex !== -1) {
+        users[uIndex].notes = notes;
+        saveUsers(users);
+        showToast('Đã lưu ghi chú thành công!', 'ok');
+      } else {
+        showToast('Không tìm thấy thí sinh.', 'err');
+      }
+    }
+    function analyzeInterests(chats) {
+      const kw = {
+        'Hoc phi': ['hoc phi', 'phi', 'tien', 'chi phi'],
+        'Nganh dao tao': ['nganh', 'chuong trinh', 'dao tao'],
+        'Phuong thuc xet tuyen': ['phuong thuc', 'xet tuyen', 'tuyen sinh'],
+        'Diem chuan': ['diem', 'diem chuan', 'diem san'],
+        'Lich phong van': ['phong van', 'lich', 'dot'],
+        'Ngoai ngu': ['ngoai ngu', 'ielts', 'toefl', 'jlpt'],
+        'SAT': ['sat'],
+        'Chi tieu': ['chi tieu', 'so luong'],
+        'Hoc bong': ['hoc bong', 'ho tro', 'mien giam'],
+      };
+      const txt = chats.filter(c => c.role === 'user').map(c => c.text.toLowerCase()).join(' ');
+      const found = [];
+      for (const [label, words] of Object.entries(kw)) {
+        if (words.some(w => txt.includes(w))) found.push(label);
+      }
+      return found;
+    }
+
+    // ═══════════════════════════════════════════════
+    // SEND MESSAGE
+    // ═══════════════════════════════════════════════
+    async function sendMessage() {
+      if (!currentUser) {
+        openAuthModal('login');
+        showToast('Vui long dang nhap de dat cau hoi.', 'err');
+        return;
+      }
+      const raw = textarea.value.trim();
+      if (!raw || isLoading) return;
+      const apiKey = getKey();
+      if (!apiKey) {
+        showToast('Chưa cấu hình API Key!', 'err');
+        const welcome = document.getElementById('welcome');
+        if (welcome) welcome.style.display = 'none';
+        appendMsg('user', raw);
+        appendMsg('bot', '⚠️ Vui lòng cấu hình Google Gemini API Key của bạn ở khung nhập bên trái và lưu lại để bắt đầu hỏi đáp.');
+        textarea.value = '';
+        return;
+      }
+
+      isLoading = true;
+      document.getElementById('send-btn').disabled = true;
+      textarea.value = '';
+      textarea.style.height = 'auto';
+
+      const welcome = document.getElementById('welcome');
+      if (welcome) welcome.style.display = 'none';
+
+      appendMsg('user', raw);
+      if (currentUser) saveUserChat(currentUser.phone, 'user', raw);
+      const typingId = appendTyping();
+
+      const MODELS = [
+        'gemini-3.1-flash-lite',
+        'gemini-2.0-flash',
+        'gemini-1.5-flash',
+        'gemini-3-flash-preview',
+        'gemini-2.0-flash-exp',
+        'gemini-1.5-flash-latest'
+      ];
+
+      clearQuickReplies();
+
+      async function callModel(model) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const systemPrompt = `Ban la Chuyen gia Tu van Tuyen sinh & Huong nghiep tam ly cua Truong Dai hoc Viet Nhat (VJU) - Dai hoc Quoc gia Ha Noi.
+Hay tu van chuyen sau, da chieu, an can, tam ly va goi mo dinh huong cho thi sinh.
+Tuyet doi KHONG dung ky tu "#" hoac "##" o dau dong hay bat ky dau trong cau tra loi. Doi voi dau dong cac y, danh sach liet ke, chi duoc su dung duy nhat ky tu "-" hoac "+" o dau dong. Trinh bay ro rang, xuong dong sach se.
+Khi phan hoi, hay luon phan tich thau dao duoi 3 goc nhin chinh sau:
+1. Hoc thuat & Tuyen sinh (Nganh hoc, to hop xet tuyen, diem chuan phu hop so thich).
+2. Giai phap Tai chinh (Hoc phi cua nganh, chinh sach hoc bong 50-100% cua VJU de mien giam ap luc, ho tro vay von, co hoi lam them de tu hoan phi hoc tap).
+3. Huong nghiep & Dau tu lau dai (Co hoi viec lam tai cac doanh nghiep doi tac Nhat Ban/Viet Nam, muc luong khoi diem tuong lai, thoi gian thu hoi von).
+
+Bat buoc phai phan hoi duoi dang mot doi tuong JSON co cau truc chinh xac nhu sau:
+{
+  "answer": "Noi dung phan hoi chi tiet bang tieng Viet. Su dung Markdown de in dam, gach dau dong va chia khoang cach dong hop ly de de doc. Phan tich day du cac goc nhin tren.",
+  "suggested_questions": ["Cau hoi goi mo tiep theo 1", "Cau hoi goi mo tiep theo 2", "Cau hoi goi mo tiep theo 3"]
+}
+
+DU LIEU TUYEN SINH:
+${KNOWLEDGE}`;
+
+        return fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: systemPrompt }] },
+            contents: [...chatHistory.slice(-6), { role: 'user', parts: [{ text: raw }] }],
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 1200,
+              responseMimeType: "application/json"
+            }
+          }),
+          signal: AbortSignal.timeout(30000)
+        });
+      }
+
+      try {
+        let finalResp = null;
+        for (const model of MODELS) {
+          let resp = await callModel(model);
+          let retry = 0;
+          while ((resp.status === 429 || resp.status === 503) && retry < 3) {
+            retry++;
+            const ed = await resp.json().catch(() => ({}));
+            const em = ed?.error?.message || '';
+            const m = em.match(/retry in ([\d.]+)/i);
+            const w = m ? Math.ceil(parseFloat(m[1]) * 1000) + 300 : 2000;
+            await new Promise(r => setTimeout(r, w));
+            resp = await callModel(model);
+          }
+          if (resp.ok) { finalResp = resp; break; }
+          if (resp.status === 429 || resp.status === 503 || resp.status === 404) continue;
+          finalResp = resp; break;
+        }
+        removeTyping(typingId);
+        if (finalResp && finalResp.ok) {
+          const data = await finalResp.json();
+          const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+          let parsedAnswer = '(Khong co phan hoi)';
+          let suggestedQuestions = [];
+
+          try {
+            const parsedObj = parseGeminiResponse(rawText);
+            parsedAnswer = parsedObj.answer;
+            suggestedQuestions = parsedObj.suggested_questions;
+          } catch (err) {
+            console.warn('Failed to parse Gemini response:', err);
+            parsedAnswer = rawText;
+          }
+
+          appendMsg('bot', parsedAnswer, suggestedQuestions);
+          chatHistory.push({ role: 'user', parts: [{ text: raw }] });
+          chatHistory.push({ role: 'model', parts: [{ text: rawText }] });
+          if (currentUser) saveUserChat(currentUser.phone, 'bot', parsedAnswer);
+        } else if (finalResp) {
+          const ed = await finalResp.json().catch(() => ({}));
+          const em = ed?.error?.message || '';
+          if (finalResp.status === 400 || em.toLowerCase().includes('api_key')) {
+            appendMsg('bot', 'API Key khong hop le.');
+          } else if (finalResp.status === 429) {
+            appendMsg('bot', 'Het quota. Vui long doi vai phut.');
+          } else {
+            appendMsg('bot', 'Loi API (' + finalResp.status + '): ' + (em || 'Loi'));
+          }
+        } else {
+          appendMsg('bot', 'Khong the ket noi API. Vui long thu lai.');
+        }
+      } catch (e) {
+        removeTyping(typingId);
+        appendMsg('bot', e.name === 'TimeoutError' || e.name === 'AbortError' ? 'Het thoi gian cho.' : 'Loi: ' + e.message);
+      } finally {
+        isLoading = false;
+        document.getElementById('send-btn').disabled = false;
+        textarea.focus();
+      }
+    }
+
+    function quickAsk(text) {
+      textarea.value = text;
+      textarea.dispatchEvent(new Event('input'));
+      sendMessage();
+    }
+
+    // ═══════════════════════════════════════════════
+    // DOM HELPERS
+    // ═══════════════════════════════════════════════
+    const textarea = document.getElementById('user-input');
+    const msgBox = document.getElementById('messages');
+
+    textarea.addEventListener('input', () => {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 140) + 'px';
+    });
+    textarea.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+
+    function clearQuickReplies() {
+      document.querySelectorAll('.quick-replies-container').forEach(el => el.remove());
+    }
+
+    function appendMsg(role, text, suggestedQuestions) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + role;
+      const now = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      const html = role === 'bot' ? formatBot(text) : esc(text);
+      div.innerHTML = '<div class="bubble">' + html + '</div><div class="msg-time">' + now + '</div>';
+      msgBox.appendChild(div);
+
+      if (role === 'bot' && suggestedQuestions && suggestedQuestions.length > 0) {
+        const qDiv = document.createElement('div');
+        qDiv.className = 'quick-replies-container';
+        suggestedQuestions.forEach(q => {
+          if (!q) return;
+          const btn = document.createElement('button');
+          btn.className = 'quick-reply-btn';
+          btn.textContent = q;
+          btn.onclick = function () {
+            clearQuickReplies();
+            textarea.value = q;
+            textarea.dispatchEvent(new Event('input'));
+            sendMessage();
+          };
+          qDiv.appendChild(btn);
+        });
+        msgBox.appendChild(qDiv);
+      }
+
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }
+    function appendTyping() {
+      const id = 'typing-' + Date.now();
+      const div = document.createElement('div');
+      div.className = 'msg bot'; div.id = id;
+      div.innerHTML = '<div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+      msgBox.appendChild(div);
+      msgBox.scrollTop = msgBox.scrollHeight;
+      return id;
+    }
+    function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
+
+    function clearChat() {
+      chatHistory = [];
+      msgBox.innerHTML = '<div id="welcome" style="display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:40px 30px;gap:14px"><div class="w-icon">\uD83C\uDF93</div><h2>Lich su da duoc xoa</h2><p>Dat cau hoi moi ve tuyen sinh VJU 2026 ben duoi.</p></div>';
+      showToast('Da xoa lich su chat.', 'ok');
+    }
+
+    function formatBot(t) {
+      let clean = t;
+      // Replace leading '# text' or '## text' with '**text**' (bold markdown) so it doesn't show '#'
+      clean = clean.replace(/(^|\n)\s*#+\s*(.+)/g, '$1**$2**');
+      // Replace any list items using '*' with '-'
+      clean = clean.replace(/(^|\n)\s*\*\s+/g, '$1- ');
+
+      return esc(clean)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`(.+?)`/g, '<code style="background:var(--surface3);padding:1px 5px;border-radius:4px;font-size:12px">$1</code>')
+        .replace(/\n/g, '<br/>');
+    }
+    function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    function parseGeminiResponse(rawText) {
+      let cleanText = rawText.trim();
+      if (cleanText.startsWith('```')) {
+        cleanText = cleanText.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+      }
+
+      // 1. Try standard JSON parse
+      try {
+        const parsed = JSON.parse(cleanText);
+        if (parsed && typeof parsed === 'object') {
+          return {
+            answer: parsed.answer || cleanText,
+            suggested_questions: parsed.suggested_questions || []
+          };
+        }
+      } catch (err) {
+        console.warn('Standard JSON parse failed, trying fallback...', err);
+      }
+
+      // 2. Robust fallback extraction using regular expressions
+      let answer = '';
+      let suggested_questions = [];
+
+      // Look for "answer": "..." (handles standard string with escaped quotes)
+      const answerRegex = /"answer"\s*:\s*"((?:[^"\\]|\\.)*)"/s;
+      const match = cleanText.match(answerRegex);
+      if (match) {
+        answer = match[1];
+        try {
+          answer = JSON.parse('"' + answer + '"'); // Let the browser handle standard unicode/escape characters
+        } catch (e) {
+          answer = answer
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\')
+            .replace(/\\t/g, '\t');
+        }
+      } else {
+        // Loose search for "answer" value if quotes are unescaped
+        const looseRegex = /"answer"\s*:\s*([\s\S]+?)(?=,\s*"suggested_questions"|,\s*"[^"]+"\s*:|}$)/s;
+        const looseMatch = cleanText.match(looseRegex);
+        if (looseMatch) {
+          let val = looseMatch[1].trim();
+          if (val.startsWith('"')) val = val.substring(1);
+          if (val.endsWith('"')) val = val.slice(0, -1);
+          answer = val
+            .replace(/\\n/g, '\n')
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, '\\')
+            .replace(/\\t/g, '\t');
+        } else {
+          // Clean fallback: remove json syntax altogether if it's completely broken
+          answer = cleanText
+            .replace(/^[{\s]+/, '')
+            .replace(/[}\s]+$/, '')
+            .replace(/^"answer"\s*:\s*"/, '')
+            .replace(/"\s*,\s*"suggested_questions"[\s\S]*$/, '');
+        }
+      }
+
+      // Extract suggested questions list
+      const questionsRegex = /"suggested_questions"\s*:\s*\[([\s\S]*?)\]/s;
+      const qMatch = cleanText.match(questionsRegex);
+      if (qMatch) {
+        try {
+          suggested_questions = JSON.parse('[' + qMatch[1] + ']');
+        } catch (e) {
+          suggested_questions = qMatch[1]
+            .split(',')
+            .map(s => s.trim().replace(/^"/, '').replace(/"$/, '').trim())
+            .filter(s => s.length > 0);
+        }
+      }
+
+      return {
+        answer: answer || rawText,
+        suggested_questions: suggested_questions
+      };
+    }
+
+    function showToast(msg, type) {
+      type = type || '';
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'show ' + type;
+      setTimeout(function () { t.className = ''; }, 3000);
+    }
+
+    // ═══════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════
+    (function init() {
+      const session = sessionStorage.getItem('vju_session');
+      if (session) {
+        currentUser = JSON.parse(session);
+        updateHeaderState();
+        // Restore chat history
+        const prevChats = getUserChats(currentUser.phone);
+        if (prevChats.length > 0) {
+          chatHistory = [];
+          prevChats.forEach(c => {
+            if (c.role === 'user') chatHistory.push({ role: 'user', parts: [{ text: c.text }] });
+            else chatHistory.push({ role: 'model', parts: [{ text: c.text }] });
+          });
+        }
+      }
+      // Restore API Key if exists
+      const savedKey = localStorage.getItem('vju_gemini_key');
+      if (savedKey) {
+        document.getElementById('api-key-input').value = savedKey;
+        setKeyStatus(true, 'Đã lưu API Key.');
+      } else {
+        setKeyStatus(false, 'Chưa cấu hình API Key.');
+      }
+    })();
+  </script>
+
+</body>
+
+</html>
