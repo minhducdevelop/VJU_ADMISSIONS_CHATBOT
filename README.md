@@ -88,14 +88,11 @@ Bước 5: Khởi chạy API backend
 
 python -m src.main
 
-API sẽ chạy tại địa chỉ: http://localhost:8000
-Có thể xem tài liệu API tại: http://localhost:8000/docs
 
 Bước 6: Khởi chạy giao diện Streamlit (nếu có)
 
 streamlit run app.py
 
-Giao diện sẽ mở tại địa chỉ: http://localhost:8501
 
 
 Một số điểm nổi bật
