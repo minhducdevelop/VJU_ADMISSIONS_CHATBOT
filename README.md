@@ -189,6 +189,7 @@ Có bật CORS cho phép frontend gọi từ mọi domain.
 
 **Admin**
   Tên đăng nhập: adminvju
+  
   Mật khẩu: adminvju2026
 
 Cách truy cập: Mở file index.html, chọn Đăng nhập, nhấn Đăng nhập Admin, nhập tài khoản ở trên.
