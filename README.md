@@ -17,16 +17,7 @@ Từ đó mình nảy ra ý tưởng xây dựng một chatbot AI có thể:
 
 ## Công nghệ sử dụng
 
-| Thành phần | Công nghệ | Ghi chú |
-|------------|-----------|---------|
-| Frontend | HTML5, CSS3, JavaScript | Single Page Application, responsive |
-| Backend | Python, FastAPI | REST API server |
-| AI/LLM | Google Gemini API | Sinh câu trả lời + tạo embedding |
-| Kiến trúc AI | RAG | Truy xuất tài liệu trước khi trả lời |
-| Vector DB | ChromaDB | Lưu embedding tài liệu tuyển sinh |
-| SQL DB | SQLAlchemy (SQLite/MySQL/PostgreSQL) | Lưu lịch sử chat |
-| Cache | Redis (Upstash) | Nhớ ngữ cảnh 3 lượt hội thoại gần nhất |
-| Xử lý dữ liệu | LangChain Text Splitters | Chia nhỏ văn bản để embedding |
+Python, FastAPI, Streamlit, ChromaDB, LangChain, Gemini API.
 
 ---
 
