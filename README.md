@@ -1,230 +1,219 @@
-# Trợ lý Tuyển sinh Đại học Thông minh (VJU Admissions Chatbot)
+Chatbot Tư Vấn Tuyển Sinh - Trường Đại Học Việt Nhật (VJU)
 
-Dự án cá nhân xây dựng chatbot tư vấn tuyển sinh cho Trường Đại học Việt Nhật (VJU) – ĐHQGHN, ứng dụng kiến trúc RAG (Retrieval-Augmented Generation) kết hợp Google Gemini API để trả lời tự động các câu hỏi về tuyển sinh năm 2026.
+Mô tả dự án
 
----
+Trong quá trình tìm hiểu về tuyển sinh đại học, mình nhận thấy rằng các thí sinh thường gặp khá nhiều khó khăn khi muốn tìm kiếm thông tin về ngành học, học phí, điều kiện xét tuyển hay các chính sách học bổng. Thông tin thì nằm rải rác ở nhiều nguồn khác nhau, mà không phải lúc nào ban tuyển sinh cũng có thể trả lời kịp thời mọi câu hỏi của thí sinh, đặc biệt là vào mùa tuyển sinh khi lượng câu hỏi tăng đột biến.
 
-## Ý tưởng dự án
+Từ ý tưởng đó, mình đã xây dựng một chatbot tư vấn tuyển sinh dành cho Trường Đại học Việt Nhật (VJU) thuộc Đại học Quốc gia Hà Nội. Chatbot này hoạt động dựa trên kỹ thuật RAG (Retrieval-Augmented Generation), có nghĩa là thay vì để AI tự trả lời theo kiến thức chung, hệ thống sẽ tìm kiếm thông tin liên quan từ bộ dữ liệu tuyển sinh chính thức của trường, rồi dựa vào đó để sinh ra câu trả lời chính xác và sát với thực tế.
 
-Là sinh viên đang theo học tại Trường Đại học Việt Nhật và từng làm cộng tác viên tuyển sinh cho trường. Trong quá trình làm việc, mình nhận thấy mỗi mùa tuyển sinh có rất nhiều thí sinh và phụ huynh hỏi đi hỏi lại những câu giống nhau: học phí bao nhiêu, ngành nào đang tuyển, xét tuyển bằng phương thức gì, lịch phỏng vấn khi nào,... Trả lời thủ công từng người rất mất thời gian.
+Mục tiêu chính của dự án là tạo ra một trợ lý ảo có thể hỗ trợ thí sinh 24/7, trả lời nhanh chóng các câu hỏi phổ biến về tuyển sinh như thông tin ngành đào tạo, học phí, phương thức xét tuyển, chính sách học bổng và các thông tin liên quan khác của VJU.
 
-Từ đó mình nảy ra ý tưởng xây dựng một chatbot AI có thể:
-- **Trả lời tự động** dựa trên tài liệu tuyển sinh chính thức của trường (không bịa thông tin).
-- **Nhớ ngữ cảnh** cuộc hội thoại để trả lời mạch lạc hơn.
-- **Thu thập thông tin thí sinh** giúp bộ phận tuyển sinh quản lý và chủ động liên hệ tư vấn.
 
----
+Công nghệ sử dụng
 
-## Công nghệ sử dụng
+- Python: ngôn ngữ lập trình chính của toàn bộ dự án
+- FastAPI: xây dựng API backend xử lý các yêu cầu chat từ phía người dùng
+- Streamlit: xây dựng giao diện người dùng để thí sinh có thể tương tác trực tiếp với chatbot
+- ChromaDB: cơ sở dữ liệu vector lưu trữ và tìm kiếm thông tin tuyển sinh theo ngữ nghĩa
+- LangChain: framework kết nối các thành phần AI lại với nhau, từ việc chia nhỏ dữ liệu, tạo embedding, tìm kiếm tương tự cho đến gọi mô hình sinh câu trả lời
+- Gemini API: sử dụng mô hình Gemini 1.5 Flash của Google để sinh câu trả lời và mô hình text-embedding-004 để tạo vector embedding cho dữ liệu tuyển sinh
 
-Python, FastAPI, Streamlit, ChromaDB, LangChain, Gemini API.
 
----
+Cách hệ thống hoạt động
 
-## Cấu trúc thư mục
+Khi thí sinh gửi câu hỏi, hệ thống sẽ thực hiện các bước sau:
 
-```
+1. Câu hỏi của thí sinh được gửi lên API backend (FastAPI)
+2. Hệ thống sử dụng ChromaDB để tìm kiếm các đoạn thông tin tuyển sinh có nội dung liên quan nhất với câu hỏi (similarity search)
+3. Các đoạn thông tin tìm được sẽ được ghép cùng với lịch sử hội thoại gần nhất để tạo thành một prompt đầy đủ
+4. Prompt này được gửi đến Gemini API để sinh ra câu trả lời tự nhiên, chính xác và dựa trên dữ liệu thực tế của trường
+5. Câu trả lời được trả về cho thí sinh qua giao diện Streamlit, đồng thời cuộc hội thoại được lưu lại để phục vụ quản lý và phân tích
+
+
+Cấu trúc dự án
+
 TuyenSinhChatbot/
-├── data/
-│   ├── faq.json              # Câu hỏi thường gặp
-│   └── majors_info.md        # Thông tin tuyển sinh 2026
-├── chroma_db/                # Vector database (tự sinh khi chạy ingest)
-├── src/
-│   ├── __init__.py
-│   ├── config.py             # Cấu hình biến môi trường
-│   ├── database.py           # Kết nối SQLAlchemy & Redis
-│   ├── ingest.py             # Nạp dữ liệu vào ChromaDB
-│   ├── rag_engine.py         # Core RAG engine
-│   └── main.py               # FastAPI server
-├── index.html                # Giao diện frontend (SPA)
-├── requirements.txt
-├── .env                      # Biến môi trường (API key, DB URL,...)
-└── README.md
-```
+  data/
+    majors_info.md          Thông tin chi tiết các ngành đào tạo của VJU
+    faq.json                Các câu hỏi thường gặp về tuyển sinh
+  src/
+    config.py               Cấu hình biến môi trường và thông số hệ thống
+    database.py             Xử lý lưu trữ dữ liệu và quản lý lịch sử hội thoại
+    ingest.py               Nạp dữ liệu tuyển sinh vào ChromaDB
+    main.py                 API backend chính (FastAPI)
+    rag_engine.py           Logic xử lý RAG: tìm kiếm, tạo prompt, gọi Gemini API
+  .env.example              Mẫu file cấu hình biến môi trường
+  requirements.txt          Danh sách các thư viện cần cài đặt
+  README.md
 
----
 
-## Hướng dẫn cài đặt và chạy
+Hướng dẫn khởi chạy dự án
 
-### 1. Cài thư viện
+Yêu cầu hệ thống
 
-Cần Python 3.9 trở lên.
+- Python 3.10 trở lên
+- Gemini API Key (lấy miễn phí tại Google AI Studio: https://aistudio.google.com/apikey)
 
-```bash
+Bước 1: Clone dự án
+
+git clone https://github.com/minhducdevelop/VJU_ADMISSIONS_CHATBOT.git
+cd VJU_ADMISSIONS_CHATBOT
+
+Bước 2: Tạo môi trường ảo và cài đặt thư viện
+
+python -m venv venv
+venv\Scripts\activate
 pip install -r requirements.txt
-```
 
-### 2. Cấu hình file `.env`
+Với macOS/Linux thì dùng:
+source venv/bin/activate
 
-```ini
-GEMINI_API_KEY=your_google_gemini_api_key
+Bước 3: Cấu hình biến môi trường
+
+Tạo file .env từ file mẫu:
+copy .env.example .env
+
+Mở file .env và điền Gemini API Key của bạn vào:
+GEMINI_API_KEY=api_key_cua_ban
 DATABASE_URL=sqlite:///./admissions_chatbot.db
-REDIS_URL=
 CHROMA_DB_DIR=./chroma_db
-```
 
-- `GEMINI_API_KEY`: Lấy miễn phí tại [Google AI Studio](https://aistudio.google.com/apikey).
-- `REDIS_URL`: Để trống nếu không có Redis, hệ thống tự dùng bộ nhớ tạm thay thế.
+Bước 4: Nạp dữ liệu tuyển sinh vào ChromaDB
 
-### 3. Nạp dữ liệu vào ChromaDB
+python -m src.ingest
 
-```bash
-python src/ingest.py
-```
+Bước này sẽ đọc dữ liệu từ thư mục data/, chia nhỏ văn bản, tạo vector embedding và lưu vào ChromaDB.
 
-Script này đọc file `data/majors_info.md` và `data/faq.json`, chia nhỏ (chunking), tạo embedding rồi lưu vào ChromaDB.
+Bước 5: Khởi chạy API backend
 
-### 4. Chạy API server
+python -m src.main
 
-```bash
-python src/main.py
-```
+API sẽ chạy tại địa chỉ: http://localhost:8000
+Có thể xem tài liệu API tại: http://localhost:8000/docs
 
-hoặc:
+Bước 6: Khởi chạy giao diện Streamlit (nếu có)
 
-```bash
-uvicorn src.main:app --reload
-```
+streamlit run app.py
 
-Server chạy tại `http://127.0.0.1:8000`. Mở `index.html` trong trình duyệt để sử dụng giao diện chat.
+Giao diện sẽ mở tại địa chỉ: http://localhost:8501
 
----
 
-## Các chức năng chính
+Một số điểm nổi bật
 
-### Phía thí sinh
+- Hệ thống chỉ trả lời dựa trên dữ liệu tuyển sinh chính thức, không tự ý bịa đặt thông tin
+- Hỗ trợ ghi nhớ lịch sử hội thoại trong phiên chat để hiểu ngữ cảnh câu hỏi tốt hơn
+- Cấu trúc code rõ ràng, dễ mở rộng thêm dữ liệu hoặc tích hợp với các hệ thống khác
+- API backend có thể kết nối với nhiều giao diện frontend khác nhau (web, mobile, tích hợp vào website trường)
 
-- **Đăng ký / Đăng nhập** bằng số điện thoại 10 chữ số + xác thực OTP 6 số.
-- **Chat với AI** – giao diện chat có typing animation, gợi ý câu hỏi nhanh (Quick Questions), gợi ý câu hỏi tiếp theo (Suggested Questions) sau mỗi lượt trả lời.
-- **Validation real-time** – SĐT chỉ nhập số, họ tên chỉ nhập chữ, kiểm tra ngay khi gõ.
-- **Multi-model fallback** – nếu model AI chính bị lỗi hoặc quá tải, hệ thống tự chuyển sang model khác (hỗ trợ 6 model Gemini).
-- **Auto retry** khi gặp rate-limit (429) hoặc server error (503).
 
-### Phía Admin (Quản trị viên)
+Các chức năng chính
+
+Phía thí sinh
+
+- Đăng ký và đăng nhập bằng số điện thoại 10 chữ số, xác thực bằng mã OTP 6 số
+- Chat với AI: giao diện chat có hiệu ứng typing animation, gợi ý câu hỏi nhanh (Quick Questions), gợi ý câu hỏi tiếp theo (Suggested Questions) sau mỗi lượt trả lời
+- Validation real-time: số điện thoại chỉ cho nhập số, họ tên chỉ cho nhập chữ, kiểm tra ngay khi người dùng gõ
+- Multi-model fallback: nếu model AI chính bị lỗi hoặc quá tải, hệ thống tự động chuyển sang model khác (hỗ trợ 6 model Gemini)
+- Auto retry khi gặp lỗi rate-limit (429) hoặc server error (503)
+
+Phía Admin (Quản trị viên)
 
 Ý tưởng: Admin là nhân viên tư vấn tuyển sinh. Sau khi thí sinh đăng ký và chat với bot, Admin vào hệ thống để xem thí sinh hỏi gì, quan tâm điều gì, từ đó chủ động gọi điện tư vấn. Nói đơn giản thì Admin Panel giống một công cụ CRM thu nhỏ cho phòng tuyển sinh.
 
 Các chức năng Admin bao gồm:
 
-| Chức năng | Mô tả | Mục đích |
-|-----------|-------|----------|
-| Dashboard thống kê | Tổng thí sinh, số đã chat, số đăng ký hôm nay | Nắm tình hình nhanh mỗi ngày |
-| Tìm kiếm thí sinh | Lọc real-time theo tên hoặc SĐT | Tìm nhanh khi nhận cuộc gọi/email |
-| Xem chi tiết thí sinh | Họ tên, SĐT, ngày sinh, tổ hợp, ngành, ngày ĐK (chỉ đọc) | Biết profile để tư vấn đúng |
-| Phân tích chủ đề | Tự động quét chat → hiển thị tags: học phí, ngành, điểm chuẩn,... | Biết thí sinh lo lắng gì mà không cần đọc hết chat |
-| Xem lịch sử chat | Toàn bộ hội thoại thí sinh ↔ chatbot, kèm thời gian | Xem bot trả lời đúng chưa, cải thiện dữ liệu |
-| Ghi chú tư vấn | Admin ghi chú riêng cho từng thí sinh, lưu vĩnh viễn | Đội tư vấn phối hợp với nhau, biết ai đã liên hệ gì |
-| Gọi tư vấn | Bấm nút gọi điện trực tiếp (tel: link) | Gọi luôn, không cần copy số |
-| Xóa thí sinh | Xóa toàn bộ thông tin + chat, có confirm trước khi xóa | Dọn dữ liệu test hoặc spam |
+- Dashboard thống kê: hiển thị tổng thí sinh, số đã chat, số đăng ký hôm nay, giúp nắm tình hình nhanh mỗi ngày
+- Tìm kiếm thí sinh: lọc real-time theo tên hoặc số điện thoại, tìm nhanh khi nhận cuộc gọi hoặc email
+- Xem chi tiết thí sinh: họ tên, số điện thoại, ngày sinh, tổ hợp, ngành, ngày đăng ký (chỉ đọc), giúp biết profile để tư vấn đúng
+- Phân tích chủ đề: tự động quét nội dung chat và hiển thị các tags như học phí, ngành, điểm chuẩn, giúp biết thí sinh lo lắng gì mà không cần đọc hết chat
+- Xem lịch sử chat: toàn bộ hội thoại giữa thí sinh và chatbot kèm thời gian, giúp xem bot trả lời đúng chưa và cải thiện dữ liệu
+- Ghi chú tư vấn: Admin ghi chú riêng cho từng thí sinh, lưu vĩnh viễn, giúp đội tư vấn phối hợp với nhau và biết ai đã liên hệ gì
+- Gọi tư vấn: bấm nút gọi điện trực tiếp qua tel link, không cần copy số
+- Xóa thí sinh: xóa toàn bộ thông tin và chat, có xác nhận trước khi xóa, dùng để dọn dữ liệu test hoặc spam
 
----
 
-## Luồng xử lý dữ liệu
+Luồng xử lý dữ liệu
 
-### Nạp dữ liệu (chạy 1 lần)
+Nạp dữ liệu (chạy 1 lần)
 
-```
-Tài liệu tuyển sinh (MD, JSON)
-    → Chunking (LangChain, ~500-1000 ký tự/đoạn)
-    → Sinh embedding (Gemini Embedding API)
-    → Lưu vào ChromaDB
-```
+Tài liệu tuyển sinh (file MD, JSON) được chia nhỏ thành các đoạn khoảng 500-1000 ký tự bằng LangChain. Sau đó mỗi đoạn được sinh embedding bằng Gemini Embedding API và lưu vào ChromaDB để phục vụ tìm kiếm theo ngữ nghĩa.
 
-### Xử lý câu hỏi (mỗi lần chat)
+Xử lý câu hỏi (mỗi lần chat)
 
-```
-Thí sinh gửi câu hỏi
-    → Embedding câu hỏi
-    → Semantic Search trong ChromaDB (tìm đoạn tài liệu liên quan)
-    → Ghép: system prompt + tài liệu tìm được + 3 lượt chat gần nhất (Redis)
-    → Gọi Gemini API sinh câu trả lời
-    → Parse JSON response → hiển thị answer + suggested questions
-    → Lưu vào SQL DB + Redis
-```
+Khi thí sinh gửi câu hỏi, hệ thống sẽ embedding câu hỏi đó rồi tìm kiếm ngữ nghĩa trong ChromaDB để lấy ra các đoạn tài liệu liên quan nhất. Tiếp theo, hệ thống ghép system prompt, tài liệu tìm được và 3 lượt chat gần nhất (lấy từ Redis) thành một prompt hoàn chỉnh, gửi đến Gemini API để sinh câu trả lời. Kết quả trả về được parse từ JSON response, hiển thị câu trả lời kèm các câu hỏi gợi ý tiếp theo, đồng thời lưu vào SQL DB và Redis.
 
----
 
-## Thiết kế cơ sở dữ liệu
+Thiết kế cơ sở dữ liệu
 
-### SQL – Bảng `chat_logs`
+SQL - Bảng chat_logs
 
-| Cột | Kiểu | Ghi chú |
-|-----|------|---------|
-| id | INTEGER (PK) | Tự tăng |
-| session_id | VARCHAR(100) | Có index, dùng để truy vấn theo phiên |
-| user_query | TEXT | Câu hỏi |
-| bot_response | TEXT | Câu trả lời |
-| timestamp | DATETIME | Thời điểm |
+- id: kiểu INTEGER, khóa chính, tự tăng
+- session_id: kiểu VARCHAR(100), có index, dùng để truy vấn theo phiên
+- user_query: kiểu TEXT, lưu câu hỏi của thí sinh
+- bot_response: kiểu TEXT, lưu câu trả lời của chatbot
+- timestamp: kiểu DATETIME, lưu thời điểm hội thoại
 
-Dùng SQLAlchemy ORM nên chuyển đổi giữa SQLite, MySQL, PostgreSQL không cần sửa code.
+Dùng SQLAlchemy ORM nên có thể chuyển đổi giữa SQLite, MySQL, PostgreSQL mà không cần sửa code.
 
-### Redis – Session cache
+Redis - Session cache
 
-- Key: `chat_history:{session_id}`
-- Value: JSON array, 6 message gần nhất (3 lượt hỏi-đáp)
+- Key: chat_history:{session_id}
+- Value: JSON array chứa 6 message gần nhất (tương đương 3 lượt hỏi-đáp)
 - TTL: 24 giờ
-- Nếu không có Redis → tự dùng In-memory, không crash
+- Nếu không có Redis thì hệ thống tự dùng In-memory, không bị crash
 
-### ChromaDB – Vector store
+ChromaDB - Vector store
 
-Lưu embedding vectors của tài liệu tuyển sinh, truy vấn bằng Semantic Search. Chạy local, không cần setup server.
+Lưu embedding vectors của tài liệu tuyển sinh, truy vấn bằng Semantic Search. Chạy local, không cần setup server riêng.
 
-### LocalStorage (Frontend)
+LocalStorage (Frontend)
 
-| Key | Nội dung |
-|-----|----------|
-| `vju_users` | Danh sách thí sinh đã đăng ký |
-| `vju_chats_{phone}` | Lịch sử chat theo SĐT |
-| `vju_gemini_key` | API Key người dùng nhập |
+- vju_users: danh sách thí sinh đã đăng ký
+- vju_chats_{phone}: lịch sử chat theo số điện thoại
+- vju_gemini_key: API Key mà người dùng nhập vào
 
----
 
-## API Endpoints
+API Endpoints
 
-| Method | Endpoint | Mô tả |
-|--------|----------|-------|
-| GET | `/health` | Kiểm tra server có đang chạy không |
-| POST | `/chat` | Gửi câu hỏi, nhận câu trả lời từ RAG engine |
-| GET | `/history/{session_id}` | Lấy lịch sử chat của một phiên |
+- GET /health: kiểm tra server có đang chạy không
+- POST /chat: gửi câu hỏi, nhận câu trả lời từ RAG engine
+- GET /history/{session_id}: lấy lịch sử chat của một phiên
 
 Có bật CORS cho phép frontend gọi từ mọi domain.
 
----
 
-## Tài khoản test
+Hướng dẫn kiểm thử cho Tester
 
-### Admin
+Tài khoản test
 
-| | |
-|---|---|
-| **Tên đăng nhập** | `adminvju` |
-| **Mật khẩu** | `adminvju2026` |
+Admin
+  Tên đăng nhập: adminvju
+  Mật khẩu: adminvju2026
 
-Cách truy cập: Mở `index.html` → Đăng nhập → Nhấn "Đăng nhập Admin" → Nhập tài khoản trên.
+Cách truy cập: Mở file index.html, chọn Đăng nhập, nhấn Đăng nhập Admin, nhập tài khoản ở trên.
 
-### Thí sinh (tạo mới để test)
+Thí sinh (tạo mới để test)
+  1. Nhấn Đăng ký, điền số điện thoại 10 số, họ tên, ngày sinh, tổ hợp môn
+  2. Nhấn Đồng ý ở modal xác nhận dữ liệu
+  3. Nhập mã OTP 6 số hiển thị ở góc trên phải modal (chế độ demo)
+  4. Sau khi đăng nhập, nhập Gemini API Key ở sidebar bên trái để bắt đầu chat
 
-1. Nhấn **Đăng ký** → Điền SĐT 10 số, họ tên, ngày sinh, tổ hợp môn.
-2. Nhấn **Đồng ý** ở modal xác nhận dữ liệu.
-3. Nhập mã OTP 6 số hiển thị ở góc trên phải modal (chế độ demo).
-4. Sau khi đăng nhập, nhập Gemini API Key ở sidebar trái để bắt đầu chat.
+Một số câu hỏi mẫu để kiểm thử
 
----
+- Trường Đại học Việt Nhật có những ngành nào?
+- Học phí ngành Công nghệ thông tin là bao nhiêu?
+- Phương thức xét tuyển của VJU năm nay như thế nào?
+- Trường có chính sách học bổng gì không?
+- Điều kiện đầu vào ngành Kỹ thuật điện tử là gì?
+- Ký túc xá của trường ở đâu?
 
-## Triển khai production (Free Tier)
+Lưu ý khi kiểm thử
 
-| Thành phần | Dịch vụ | Ghi chú |
-|------------|---------|---------|
-| Vector DB | Chạy local `chroma_db/` | Deploy kèm source code |
-| Redis | [Upstash](https://upstash.com/) | Đăng ký free, lấy Connection URL → `REDIS_URL` |
-| SQL DB | [Supabase](https://supabase.com/) | PostgreSQL free → `DATABASE_URL` |
-| Backend | [Render](https://render.com/) | Liên kết GitHub repo, cấu hình ENV trên dashboard |
+- Mỗi session_id đại diện cho một phiên chat riêng biệt, hệ thống sẽ ghi nhớ lịch sử hội thoại trong cùng một session
+- Nếu hỏi câu hỏi ngoài phạm vi dữ liệu tuyển sinh, chatbot sẽ thông báo không có thông tin và hướng dẫn liên hệ ban tuyển sinh
+- Đảm bảo đã chạy bước nạp dữ liệu (python -m src.ingest) trước khi test, nếu không chatbot sẽ không có dữ liệu để trả lời
 
----
 
-## Một số điểm kỹ thuật đáng chú ý
+Thông tin liên hệ
 
-- **Fault tolerance**: Hệ thống tự chuyển model khi Gemini API lỗi (6 model fallback), tự retry khi rate-limit, tự chuyển In-memory khi Redis chết.
-- **Bảo mật**: OTP 6 số, validate input real-time, modal đồng ý thu thập dữ liệu (GDPR-like), phân quyền Admin/User rõ ràng.
-- **Prompt Engineering**: System prompt thiết kế cho vai trò chuyên gia tư vấn tuyển sinh, output dạng JSON có `answer` + `suggested_questions`, xử lý parse JSON nhiều tầng fallback.
-- **UX**: Responsive trên mobile, có micro-animation (typing dots, fade-in), quick replies, suggested questions.
+Dự án này được thực hiện bởi sinh viên trong quá trình học tập và nghiên cứu. Nếu bạn có góp ý hoặc muốn trao đổi thêm, vui lòng liên hệ qua GitHub.
